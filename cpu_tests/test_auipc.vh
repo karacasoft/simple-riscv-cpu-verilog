@@ -1,0 +1,7 @@
+`define TEST_AUIPC(TNUM, RD, IMM20, INITIAL_PC, RET) `TEST_NUM(TNUM); \
+    `REGISTER(RD) = 'hx; \
+    `RESET; \
+    `SET_U_TYPE(IMM20, 1, `AUIPC); \
+    `PC = INITIAL_PC; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`REGISTER(1), RET); \

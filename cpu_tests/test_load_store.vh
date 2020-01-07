@@ -1,0 +1,245 @@
+`include "cpu_tests/test_common.vh"
+`include "cpu.vh"
+
+`define TEST_LW_ALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA) `TEST_NUM(TNUM); \
+    `RESET; \
+    `REGISTER(RS1) = ADDR; \
+    `REGISTER(RD) = 'hx; \
+    `SET_I_TYPE(OFFSET, RS1, 3'b010, RD, `LOAD); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ(((ADDR) + (OFFSET)) >> 2); \
+    `DELAY_CYCLES(2); \
+    `DMEM_RD_DATA = RD_DATA; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \
+    `ASSERT_EQ(`REGISTER(RD), (RD_DATA)); \
+
+`define TEST_LW_SAME_REG_ALIGNED(TNUM, RS_RD, OFFSET, ADDR, RD_DATA) `TEST_NUM(TNUM); \
+    `RESET; \
+    `REGISTER(RS_RD) = ADDR; \
+    `SET_I_TYPE(OFFSET, RS_RD, 3'b010, RS_RD, `LOAD); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ(((ADDR) + (OFFSET)) >> 2); \
+    `DELAY_CYCLES(2); \
+    `DMEM_RD_DATA = RD_DATA; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \
+    `ASSERT_EQ(`REGISTER(RS_RD), (RD_DATA)); \
+
+`define TEST_LW_MISALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA_1, RD_DATA_2, RD_RET) `TEST_NUM(TNUM); \
+    `RESET; \
+    `REGISTER(RS1) = ADDR; \
+    `REGISTER(RD) = 'hx; \
+    `SET_I_TYPE(OFFSET, RS1, 3'b010, RD, `LOAD); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ(((ADDR) + (OFFSET)) >> 2); \
+    `DELAY_CYCLES(2); \
+    `DMEM_RD_DATA = RD_DATA_1; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(1); \
+    `DMEM_READY = 0; \
+    `ASSERT_MEM_REQ((((ADDR) + (OFFSET)) >> 2) + 1); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = RD_DATA_2; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \
+    `ASSERT_EQ(`REGISTER(RD), RD_RET); \
+
+`define TEST_LW_SAME_REG_MISALIGNED(TNUM, RS_RD, OFFSET, ADDR, RD_DATA_1, RD_DATA_2, RD_RET) `TEST_NUM(TNUM); \
+    `RESET; \
+    `REGISTER(RS_RD) = ADDR; \
+    `SET_I_TYPE(OFFSET, RS_RD, 3'b010, RS_RD, `LOAD); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ(((ADDR) + (OFFSET)) >> 2); \
+    `DELAY_CYCLES(2); \
+    `DMEM_RD_DATA = RD_DATA_1; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 0; \
+    `ASSERT_MEM_REQ((((ADDR) + (OFFSET)) >> 2) + 1); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = RD_DATA_2; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \
+    `ASSERT_EQ(`REGISTER(RS_RD), RD_RET); \
+
+`define TEST_LHX_ALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA, RD_RET, FUNCT3) `TEST_NUM(TNUM); \
+    `RESET; \
+    `REGISTER(RS1) = (ADDR); \
+    `REGISTER(RD) = 'hx; \
+    `SET_I_TYPE(OFFSET, RS1, FUNCT3, RD, `LOAD); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ(((ADDR) + (OFFSET)) >> 2); \
+    `DELAY_CYCLES(2); \
+    `DMEM_RD_DATA = RD_DATA; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \
+    `ASSERT_EQ(`REGISTER(RD), RD_RET); \
+
+`define TEST_LH_ALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA, RD_RET) `TEST_LHX_ALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA, RD_RET, 3'b001);
+`define TEST_LHU_ALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA, RD_RET) `TEST_LHX_ALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA, RD_RET, 3'b101);
+
+`define TEST_LHX_MISALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA_1, RD_DATA_2, RD_RET, FUNCT3) `TEST_NUM(TNUM); \
+    `RESET; \
+    `REGISTER(RS1) = ADDR; \
+    `REGISTER(RD) = 'hx; \
+    `SET_I_TYPE(OFFSET, RS1, FUNCT3, RD, `LOAD); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ(((ADDR) + (OFFSET)) >> 2); \
+    `DELAY_CYCLES(2); \
+    `DMEM_RD_DATA = RD_DATA_1; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 0; \
+    `ASSERT_MEM_REQ((((ADDR) + (OFFSET)) >> 2) + 1); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = RD_DATA_2; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \
+    `ASSERT_EQ(`REGISTER(RD), RD_RET); \
+
+`define TEST_LH_MISALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA_1, RD_DATA_2, RD_RET) `TEST_LHX_MISALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA_1, RD_DATA_2, RD_RET, 3'b001);
+`define TEST_LHU_MISALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA_1, RD_DATA_2, RD_RET) `TEST_LHX_MISALIGNED(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA_1, RD_DATA_2, RD_RET, 3'b101);
+
+`define TEST_LBX(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA, RD_RET, FUNCT3) `TEST_NUM(TNUM); \
+    `RESET; \
+    `REGISTER(RS1) = ADDR; \
+    `REGISTER(RD) = 'hx; \
+    `SET_I_TYPE(OFFSET, RS1, FUNCT3, RD, `LOAD); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ((((ADDR) + (OFFSET)) >> 2)); \
+    `DELAY_CYCLES(2); \
+    `DMEM_RD_DATA = RD_DATA; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \
+    `ASSERT_EQ(`REGISTER(RD), RD_RET); \
+
+`define TEST_LB(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA, RD_RET) `TEST_LBX(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA, RD_RET, 3'b000)
+`define TEST_LBU(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA, RD_RET) `TEST_LBX(TNUM, RS1, RD, OFFSET, ADDR, RD_DATA, RD_RET, 3'b100)
+
+
+`define TEST_SW_ALIGNED(TNUM, RS2, RS1, OFFSET, ADDR, WR_DATA, RD_DATA) `TEST_NUM(TNUM); \
+    `RESET; \
+    `REGISTER(RS1) = ADDR; \
+    `REGISTER(RS2) = WR_DATA; \
+    `SET_S_TYPE(OFFSET, RS2, RS1, 3'b010, `STORE); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ((((ADDR) + (OFFSET)) >> 2)); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = RD_DATA; \
+    `DELAY_CYCLES(1); \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_WRITE((((ADDR) + (OFFSET)) >> 2), WR_DATA); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = WR_DATA; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \
+
+`define TEST_SB(TNUM, RS2, RS1, OFFSET, ADDR, WR_DATA, RD_DATA, EXPECTED_WR) `TEST_NUM(TNUM); \
+    `RESET; \
+    `REGISTER(RS1) = ADDR; \
+    `REGISTER(RS2) = WR_DATA; \
+    `SET_S_TYPE(OFFSET, RS2, RS1, 3'b000, `STORE); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ((((ADDR) + (OFFSET)) >> 2)); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = RD_DATA; \
+    `DELAY_CYCLES(1); \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_WRITE((((ADDR) + (OFFSET)) >> 2), EXPECTED_WR); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = EXPECTED_WR; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \
+
+`define TEST_SH_ALIGNED(TNUM, RS2, RS1, OFFSET, ADDR, WR_DATA, RD_DATA, EXPECTED_WR) `TEST_NUM(TNUM); \
+    `RESET; \
+    `REGISTER(RS1) = ADDR; \
+    `REGISTER(RS2) = WR_DATA; \
+    `SET_S_TYPE(OFFSET, RS2, RS1, 3'b001, `STORE); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ((((ADDR) + (OFFSET)) >> 2)); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = RD_DATA; \
+    `DELAY_CYCLES(1); \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_WRITE((((ADDR) + (OFFSET)) >> 2), EXPECTED_WR); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = EXPECTED_WR; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \
+
+`define TEST_SH_MISALIGNED(TNUM, RS2, RS1, OFFSET, ADDR, WR_DATA, RD_DATA_1, RD_DATA_2, EXPECTED_WR_1, EXPECTED_WR_2) `TEST_NUM(TNUM); \
+    `REGISTER(RS1) = ADDR; \
+    `REGISTER(RS2) = WR_DATA; \
+    `SET_S_TYPE(OFFSET, RS2, RS1, 3'b001, `STORE); \
+    `PC = 'h400; \
+    `DMEM_READY = 0; \
+    `RESET; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ((((ADDR) + (OFFSET)) >> 2)); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = RD_DATA_1; \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_WRITE((((ADDR) + (OFFSET)) >> 2), EXPECTED_WR_1); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = EXPECTED_WR_1; \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_REQ((((ADDR) + (OFFSET)) >> 2) + 1); \
+    `DELAY_CYCLES(2); \
+    `DMEM_RD_DATA = RD_DATA_2; \
+    `DMEM_READY = 1; \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 0; \
+    `DELAY_CYCLES(2); \
+    `ASSERT_MEM_WRITE(1, EXPECTED_WR_2); \
+    `DELAY_CYCLES(2); \
+    `DMEM_READY = 1; \
+    `DMEM_RD_DATA = EXPECTED_WR_2; \
+    `DELAY_CYCLES(3); \
+    `ASSERT_EQ(`PC, 'h404); \

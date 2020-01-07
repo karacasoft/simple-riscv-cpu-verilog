@@ -1,0 +1,97 @@
+[*]
+[*] GTKWave Analyzer v3.3.102 (w)1999-2019 BSI
+[*] Mon Dec 16 19:05:47 2019
+[*]
+[dumpfile] "/home/karacasoft/Documents/CMPE511/riskbes_revolutions/computer.vcd"
+[dumpfile_mtime] "Mon Dec 16 18:47:24 2019"
+[dumpfile_size] 10852
+[savefile] "/home/karacasoft/Documents/CMPE511/riskbes_revolutions/test_prog_savefile.gtkw"
+[timestart] 5304
+[size] 1920 983
+[pos] -1 -1
+*-10.000000 5693 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TBComputer.
+[treeopen] TBComputer.cpu.
+[sst_width] 228
+[signals_width] 259
+[sst_expanded] 1
+[sst_vpaned_height] 274
+@28
+TBComputer.cpu.clk
+@22
+TBComputer.cpu.pc[31:0]
+TBComputer.cpu.imem_rd_data[31:0]
+TBComputer.cpu.dmem_addr[31:0]
+@200
+-
+@22
+TBComputer.cpu.state[4:0]
+@200
+-
+-Register File
+@22
+TBComputer.cpu.register_file.ra1[4:0]
+TBComputer.cpu.register_file.ra2[4:0]
+TBComputer.cpu.register_file.rdata1[31:0]
+TBComputer.cpu.register_file.rdata2[31:0]
+TBComputer.cpu.register_file.wa[4:0]
+TBComputer.cpu.register_file.wdata[31:0]
+@28
+TBComputer.cpu.register_file.write
+@200
+-
+-
+-ALU
+@22
+TBComputer.cpu.alu.op1[31:0]
+TBComputer.cpu.alu.op2[31:0]
+TBComputer.cpu.alu.op_type[4:0]
+TBComputer.cpu.alu.ret[31:0]
+TBComputer.cpu.alu.shamt[4:0]
+@200
+-
+-LSU
+@22
+TBComputer.cpu.lsu_addr[31:0]
+@28
+TBComputer.cpu.lsu_data_ready
+TBComputer.cpu.lsu_data_req
+TBComputer.cpu.lsu_op_size[1:0]
+TBComputer.cpu.lsu_op_unsigned
+@22
+TBComputer.cpu.lsu_rd_data[31:0]
+TBComputer.cpu.lsu_w_data[31:0]
+@28
+TBComputer.cpu.lsu_w_en
+@200
+-
+-
+-
+@23
+TBComputer.memory_addr[31:0]
+@200
+-IMEM
+@22
+TBComputer.icache_mem_addr[31:0]
+@28
+TBComputer.icache_rd_en
+TBComputer.icache_ready
+@22
+TBComputer.icache_value[31:0]
+TBComputer.memory_read_data[31:0]
+@200
+-
+-
+-DMEM
+@22
+TBComputer.dcache.addr[31:0]
+TBComputer.dcache_mem_addr[31:0]
+TBComputer.dcache_mem_wr_data[31:0]
+@28
+TBComputer.dcache_mem_wr_en
+TBComputer.dcache_rd_en
+TBComputer.dcache_ready
+@22
+TBComputer.dcache_value[31:0]
+[pattern_trace] 1
+[pattern_trace] 0
